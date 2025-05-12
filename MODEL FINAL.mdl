@@ -1,0 +1,659 @@
+{UTF-8}
+Annual fuel efficiency induced demand growth=
+	SUM(Fuel efficiency induced demand growth[Haul segment!])
+	~	RPK/Year
+	~		|
+
+Total annual change of passenger demand=
+	SUM(Annual passenger demand[Haul segment!])-Annual passenger demand previous year
+	~	(Passengers*km)/Year
+	~		|
+
+Annual passenger demand previous year=
+	DELAY FIXED(SUM(Annual passenger demand[Haul segment!]) , 1 , SUM(Annual passenger demand\
+		[Haul segment!]))
+	~	(Passengers*km)/Year
+	~		|
+
+Current annual RPK[Haul segment]=
+	Average flight distance[Haul segment]*PAX per flight[Haul segment]*Current value annual number of flights\
+		[Haul segment]
+	~	(Passengers*km)/Year
+	~		|
+
+Increase of average PLF=
+	Yearly percentage increase PLF*Average PLF
+	~	Dmnl/Year
+	~		|
+
+PAX per flight[Haul segment]=
+	Average PLF*Maximum average seating capacity of aircraft[Haul segment]
+	~	Passengers
+	~		|
+
+Average PLF= INTEG (
+	Increase of average PLF,
+		0.834)
+	~	Dmnl
+	~		|
+
+Yearly percentage increase PLF=
+	0.00317*Efficiency Switch
+	~	1/Year
+	~	Assumed 0.826 in year 0, leading up to pre pandemic level of 0.8746 in the \
+		last simulation year. Which gives 0.317% growth per year.
+	|
+
+Current value annual AKF[Haul segment]=
+	Current value annual number of flights[Haul segment]*Average flight distance[Haul segment\
+		]
+	~	km/Year
+	~		|
+
+Initial average flight distance[Haul segment]=
+	600, 1000, 1600, 3250, 12000
+	~	km
+	~		|
+
+Annual ASK[Haul segment]=
+	Maximum annual number of flights[Haul segment]*Maximum average seating capacity of aircraft\
+		[Haul segment]*Average flight distance[Haul segment]
+	~	(Passengers*km)/Year
+	~		|
+
+Average flight distance[Haul segment]= INTEG (
+	-Decrease in average flight distance[Haul segment],
+		Initial average flight distance[Haul segment])
+	~	km
+	~		|
+
+Decrease in average flight distance[Haul segment]=
+	Average flight distance[Haul segment]*Yearly percentage reduction flight distance due to route optimalization
+	~	km/Year
+	~		|
+
+Demand fulfillment rate[Haul segment]=
+	IF THEN ELSE(Maximum annual number of flights[Haul segment]>=Current value annual number of flights demanded\
+		[Haul segment], 1 , (Maximum annual number of flights[Haul segment]/Current value annual number of flights demanded\
+		[Haul segment]))
+	~	Dmnl
+	~		|
+
+Current value annual number of flights[Haul segment]=
+	Current value annual number of flights demanded[Haul segment]*Demand fulfillment rate\
+		[Haul segment]
+	~	1/Year
+	~		|
+
+Yearly percentage reduction flight distance due to route optimalization=
+	0.00349*Unit*Efficiency Switch
+	~	1/Year
+	~		|
+
+Current value annual number of flights demanded[Haul segment]=
+	(Current value annual passenger demand[Haul segment])/(PAX per flight[Haul segment]*\
+		Average flight distance[Haul segment])
+	~	1/Year
+	~		|
+
+Average yearly percentage increase of aircraft fuel efficiency=
+	0.0125*Unit*Efficiency Switch
+	~	1/Year
+	~		|
+
+Initial value passenger demand[Haul segment]=
+	Initial value passenger demand sector wide*Market share per haul segment[Haul segment\
+		]
+	~	(Passengers*km)/Year
+	~	https://aci.aero/2025/01/28/joint-aci-world-icao-passenger-traffic-report-t\
+		rends-and-outlook/#: \
+		:text=By%202023%2C%20global%20passenger%20numbers,the%20June%202019%20YTD%2\
+		0level.
+	|
+
+Initial value total fuel consumption[Haul segment]=
+	Initial value total fuel consumption sector wide*Market share per haul segment[Haul segment\
+		]
+	~	Ltrs
+	~		|
+
+Initial value passenger demand sector wide=
+	8.5e+12
+	~	(Passengers*km)/Year
+	~	8.1e+12
+	|
+
+Initial value total fuel consumption sector wide=
+	3.59575e+11
+	~	Ltrs
+	~		|
+
+Unit=
+	1
+	~	1/Year
+	~		|
+
+Change ratio fuel cost per RPK[Haul segment]=
+	IF THEN ELSE(Time=INITIAL TIME, (Fuel cost per RPK[Haul segment]-Initial value fuel cost per RPK\
+		[Haul segment])/Initial value fuel cost per RPK
+	[Haul segment] , (Fuel cost per RPK[Haul segment]-Fuel cost per RPK previous year[Haul segment\
+		])/Fuel cost per RPK previous year
+	[Haul segment])
+	~	Dmnl
+	~		|
+
+Fuel efficiency induced demand growth[Haul segment]=
+	Fuel efficiency induced demand growth rate[Haul segment]*Annual passenger demand[Haul segment\
+		]*RE Loop Switch
+	~	(Passengers*km)/(Year*Year)
+	~		|
+
+RE Loop Switch=1
+	~	Dmnl
+	~	Can take value of 0 or 1.
+		0 = RE Loop is switched off
+		1 = RE Loop is switched on
+	|
+
+Efficiency Switch=1
+	~	Dmnl
+	~	Can take value 0 or 1. 
+		1 = Efficiency is active
+		0 = Efficiency is inactive
+	|
+
+Baseline prediction yearly demand growth rate[Haul segment]=
+	0.044
+	~	1/Year
+	~	Assumed 4.4% so multiply by 0.044
+		https://www.sciencedirect.com/science/article/pii/S0969699716301636
+	|
+
+Total annual passenger demand=
+	SUM(Annual passenger demand[Haul segment!])
+	~	RPK/Year
+	~		|
+
+Initial value fuel cost per RPK[Haul segment]=
+	Jet fuel price*Initial value fuel consumption per RPK[Haul segment]
+	~	euro*Year/(Passengers*km)
+	~		|
+
+Annual fuel consumption[Haul segment]=
+	MAX(IF THEN ELSE(Time=INITIAL TIME, Initial value total fuel consumption[Haul segment\
+		], Total accumulated fuel consumption[Haul segment]-Total accumulated fuel consumption previous year\
+		[Haul segment]),6e+10)
+	~	Ltrs
+	~	6e+10
+		7.1915e+10
+	|
+
+Initial value fuel consumption per RPK[Haul segment]=
+	Initial value total fuel consumption[Haul segment]/Initial value annual RPK[Haul segment\
+		]
+	~	Ltrs/((Passengers*km)/Year)
+	~		|
+
+Initial value fuel consumption per ASK=
+	0.0315
+	~	Ltrs/(Passengers*km)
+	~	0.025 kg kerosine per ASK, which comes down to 0.0315 L of kerosine per ASK
+	|
+
+Initial value fuel consumption per AKF[Haul segment]=
+	Initial value fuel consumption per ASK*Maximum average seating capacity of aircraft[\
+		Haul segment]
+	~	Ltrs/km
+	~		|
+
+Fuel cost per RPK[Haul segment]=
+	Jet fuel price*Fuel consumption per RPK[Haul segment]
+	~	euro*Year/(Passengers*km)
+	~		|
+
+Fuel consumption per AKF[Haul segment]= INTEG (
+	-Decrease fuel consumption per AKF[Haul segment],
+		Initial value fuel consumption per AKF[Haul segment])
+	~	Ltrs/km
+	~		|
+
+Total accumulated fuel consumption[Haul segment]= INTEG (
+	Fuel consumed[Haul segment],
+		Initial value total fuel consumption[Haul segment])
+	~	Ltrs
+	~		|
+
+Annual passenger demand[Haul segment]= INTEG (
+	Baseline demand growth[Haul segment]+Fuel efficiency induced demand growth[Haul segment\
+		],
+		Initial value passenger demand[Haul segment])
+	~	(Passengers*km)/Year
+	~		|
+
+Fuel consumption per RPK[Haul segment]=
+	Annual fuel consumption[Haul segment]/Current annual RPK[Haul segment]
+	~	Ltrs/((Passengers*km)/Year)
+	~	Current Value Annual Fuel Consumption[Categories]/Current Annual \
+		RPK[Categories]
+	|
+
+Initial value annual RPK[Haul segment]=
+	Initial value passenger demand[Haul segment]*Market share per haul segment[Haul segment\
+		]
+	~	(Passengers*km)/Year
+	~		|
+
+Accumulated CO2 emissions[Haul segment]= INTEG (
+	Total annual CO2 emissions[Haul segment],
+		5)
+	~	MtCO2
+	~		|
+
+AKF[Haul segment]=
+	Current value annual AKF[Haul segment]
+	~	km/Year
+	~		|
+
+Fuel efficiency induced demand growth rate[Haul segment]=
+	MAX(0,Fare elasticity of demand[Haul segment]*Fare price change ratio[Haul segment])
+	~	1/Year
+	~		|
+
+Baseline demand growth[Haul segment]=
+	Annual passenger demand[Haul segment]*Baseline prediction yearly demand growth rate[\
+		Haul segment]
+	~	(Passengers*km)/(Year*Year)
+	~		|
+
+Maximum average seating capacity of aircraft[Haul segment]=
+	108.75, 126.25, 146.43, 183.33, 308.33
+	~	Passengers
+	~	Estimations based on data from: \
+		https://www.sciencedirect.com/science/article/pii/S0969699716301636
+	|
+
+CO2 emissions per liter jet fuel=
+	0.00316
+	~	MtCO2/Ltrs
+	~	3.16e-05
+	|
+
+Current value annual passenger demand[Haul segment]=
+	Annual passenger demand[Haul segment]
+	~	(Passengers*km)/Year
+	~		|
+
+Total annual ASK sector wide=
+	SUM(Annual ASK[Haul segment!])
+	~	(Passengers*km)/Year
+	~		|
+
+Decrease fuel consumption per AKF[Haul segment]=
+	Fuel consumption per AKF[Haul segment]*Average yearly percentage increase of aircraft fuel efficiency
+	~	Ltrs/(km*Year)
+	~		|
+
+Total annual CO2 emissions[Haul segment]=
+	Fuel consumed[Haul segment]*CO2 emissions per liter jet fuel
+	~	MtCO2/Year
+	~		|
+
+Fare price change ratio[Haul segment]=
+	Change ratio fuel cost per RPK[Haul segment]*Pricing strategy factor[Haul segment]
+	~	Dmnl
+	~		|
+
+Fuel consumed[Haul segment]=
+	Current value annual AKF[Haul segment]*Fuel consumption per AKF[Haul segment]
+	~	Ltrs/Year
+	~		|
+
+RPK[Haul segment]=
+	Current annual RPK[Haul segment]
+	~	(Passengers*km)/Year
+	~		|
+
+Fuel cost per RPK previous year[Haul segment]= DELAY FIXED (
+	Fuel cost per RPK[Haul segment], 1 , Fuel cost per RPK[Haul segment])
+	~	euro*Year/(Passengers*km)
+	~		|
+
+Total accumulated AKF[Haul segment]= INTEG (
+	AKF[Haul segment],
+		5)
+	~	km
+	~		|
+
+Maximum total annual number of flights sector wide=5e+09
+	~	1/Year
+	~	5e+09
+	|
+
+Total accumulated RPKs[Haul segment]= INTEG (
+	RPK[Haul segment],
+		5)
+	~	Passengers*km
+	~		|
+
+Maximum annual number of flights[Haul segment]=
+	Market share per haul segment[Haul segment]*Maximum total annual number of flights sector wide
+	~	1/Year
+	~		|
+
+Total accumulated fuel consumption previous year[Haul segment]=
+	DELAY FIXED(Total accumulated fuel consumption[Haul segment], 1 , Total accumulated fuel consumption\
+		[Haul segment])
+	~	Ltrs
+	~	Fixed Delay of one year, so value of previous year will be taken
+	|
+
+Total accumulated emissions=
+	SUM(Accumulated CO2 emissions[Haul segment!])
+	~	MtCO2
+	~		|
+
+Haul segment:
+	ShortHaul, ShortMediumHaul, MediumHaul, LongHaul, UltraLongHaul
+	~	Dmnl
+	~		|
+
+Market share per haul segment[Haul segment]=
+	0.2, 0.2, 0.2, 0.2, 0.2
+	~	Dmnl
+	~	Demand is now distributed equally over the categories. Since there are 5 \
+		distance categories, Current Value Annual Air Travel Demand per category \
+		is 20% of total demand.
+	|
+
+Fare elasticity of demand[Haul segment]=-0.83, -0.83, -1.06, -1.28, -1.28
+	~	1/Year
+	~	-0.83 for ultra long & long haul
+		-1.06 for medium haul
+		-1.28 for short & short medium haul
+		
+		-0.83, -0.83, -1.06, -1.28, -1.28
+	|
+
+Jet fuel price=
+	0.541
+	~	euro/Ltrs
+	~		|
+
+Pricing strategy factor[Haul segment]=0.45
+	~	Dmnl
+	~	Degree to which a decrease in fuel costs directly influences the fare price. 
+		Per category, ShortHaul - UltraLongHaul
+		0.9, 0.8, 0.7, 0.6, 0.5
+	|
+
+********************************************************
+	.Control
+********************************************************~
+		Simulation Control Parameters
+	|
+
+FINAL TIME  = 2040
+	~	Year
+	~	The final time for the simulation.
+	|
+
+INITIAL TIME  = 2022
+	~	Year
+	~	The initial time for the simulation.
+	|
+
+SAVEPER  = 
+        TIME STEP
+	~	Year [0,?]
+	~	The frequency with which output is stored.
+	|
+
+TIME STEP  = 0.0078125
+	~	Year [0,?]
+	~	The time step for the simulation.
+	|
+
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*View 1
+$-1--1--1,0,|12||-1--1--1|-1--1--1|-1--1--1|-1--1--1|-1--1--1|96,96,45,2
+10,1,Fuel consumption per RPK,828,1108,88,36,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,2,Fuel cost per RPK,646,959,58,24,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,3,Fare price change ratio,603,663,87,28,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,4,Change ratio fuel cost per RPK,579,811,74,24,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,5,4,3,1,0,0,0,0,192,0,-1--1--1,,1|(565,770)|
+10,6,Pricing strategy factor,330,638,69,24,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,7,6,3,1,0,0,0,0,192,0,-1--1--1,,1|(448,617)|
+10,8,Jet fuel price,559,1051,61,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,9,8,2,1,0,0,0,0,192,0,-1--1--1,,1|(625,1015)|
+10,10,Fuel cost per RPK previous year,516,931,70,33,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,11,10,4,1,0,0,0,0,192,0,-1--1--1,,1|(535,864)|
+1,12,2,10,1,0,0,0,0,192,0,-1--1--1,,1|(578,982)|
+1,13,2,4,1,0,0,0,0,192,0,-1--1--1,,1|(590,888)|
+10,14,Annual passenger demand,1036,438,68,24,3,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,15,48,727,440,25,15,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,16,18,15,100,0,0,22,0,192,0,-1--1--1,,1|(805,440)|
+1,17,18,14,4,0,0,22,0,192,0,-1--1--1,,1|(919,440)|
+11,18,0,864,440,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,19,Fuel efficiency induced demand growth,864,480,91,32,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,20,3,31,1,0,0,0,0,192,0,-1--1--1,,1|(621,612)|
+12,21,48,1035,269,25,15,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,22,24,21,100,0,0,22,0,192,0,-1--1--1,,1|(1035,313)|
+1,23,24,14,4,0,0,22,0,192,0,-1--1--1,,1|(1035,384)|
+11,24,0,1035,348,8,6,33,3,0,0,4,0,0,0,0,0,0,0,0,0
+10,25,Baseline demand growth,1110,348,67,35,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,26,Fare elasticity of demand,562,449,60,24,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,27,14,18,1,0,0,0,0,192,0,-1--1--1,,1|(955,403)|
+1,28,14,24,1,0,0,0,0,192,0,-1--1--1,,1|(1007,371)|
+10,29,Baseline prediction yearly demand growth rate,1163,187,85,40,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,30,29,25,1,0,0,0,0,192,0,-1--1--1,,1|(1150,278)|
+10,31,Fuel efficiency induced demand growth rate,701,548,89,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,32,26,31,1,0,0,0,0,192,0,-1--1--1,,1|(644,472)|
+10,33,Current value annual passenger demand,1313,503,73,35,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,34,14,33,1,0,0,0,0,192,0,-1--1--1,,1|(1169,452)|
+1,35,31,19,1,0,0,0,0,192,0,-1--1--1,,1|(729,502)|
+10,36,Total annual change of passenger demand,1423,280,86,35,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,37,14,36,1,0,0,0,0,192,0,-1--1--1,,1|(1286,385)|
+10,38,Initial value passenger demand,1269,303,78,25,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,39,38,14,1,0,0,0,0,192,1,-1--1--1,,1|(1188,386)|
+10,40,Current value annual number of flights demanded,1468,616,90,30,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,41,33,40,1,0,0,0,0,192,0,-1--1--1,,1|(1394,552)|
+10,42,Market share per haul segment,1478,161,88,35,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,43,PAX per flight,1804,553,60,24,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,44,43,40,1,0,0,0,0,192,0,-1--1--1,,1|(1658,569)|
+10,45,Maximum average seating capacity of aircraft,1919,448,95,31,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,46,45,43,1,0,0,0,0,192,0,-1--1--1,,1|(1871,515)|
+10,47,Annual ASK,1873,263,67,24,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,48,45,47,1,0,0,0,0,192,0,-1--1--1,,1|(1935,380)|
+10,49,Maximum annual number of flights,1666,353,82,33,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,50,42,49,1,0,0,0,0,192,0,-1--1--1,,1|(1595,250)|
+10,51,Maximum total annual number of flights sector wide,1719,186,104,35,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,52,51,49,1,0,0,0,0,192,0,-1--1--1,,1|(1724,258)|
+1,53,49,47,1,0,0,0,0,192,0,-1--1--1,,1|(1791,320)|
+10,54,Total annual ASK sector wide,2054,179,80,48,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,55,47,54,1,0,0,0,0,192,0,-1--1--1,,1|(1956,214)|
+10,56,Current annual RPK,1934,640,53,24,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,57,43,56,1,0,0,0,0,192,0,-1--1--1,,1|(1874,583)|
+10,58,Total accumulated RPKs,2285,688,74,24,3,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,59,48,2044,688,25,15,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,60,62,59,100,0,0,22,0,192,0,-1--1--1,,1|(2102,688)|
+1,61,62,58,4,0,0,22,0,192,0,-1--1--1,,1|(2179,688)|
+11,62,0,2141,688,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,63,RPK,2141,718,42,22,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,64,56,62,1,0,0,0,0,192,0,-1--1--1,,1|(2058,642)|
+10,65,Current value annual AKF,1465,938,60,24,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,66,Total accumulated AKF,1974,913,69,29,3,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,67,48,1746,912,25,15,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,68,70,67,100,0,0,22,0,192,0,-1--1--1,,1|(1802,912)|
+1,69,70,66,4,0,0,22,0,192,0,-1--1--1,,1|(1875,912)|
+11,70,0,1839,912,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,71,AKF,1839,942,42,22,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,72,65,71,1,0,0,0,0,192,0,-1--1--1,,1|(1668,953)|
+10,73,Total accumulated fuel consumption,1483,1048,74,35,3,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,74,48,1253,1045,25,15,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,75,77,74,100,0,0,22,0,192,0,-1--1--1,,1|(1311,1045)|
+1,76,77,73,4,0,0,22,0,192,0,-1--1--1,,1|(1382,1045)|
+11,77,0,1350,1045,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,78,Fuel consumed,1350,1076,55,23,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,79,65,77,1,0,0,0,0,192,0,-1--1--1,,1|(1415,997)|
+10,80,Fuel consumption per AKF,1735,1043,75,24,3,3,0,4,-1,0,0,0,0-0-0,0-255-0,|||0-0-0,0,0,0,0,0,0
+1,81,80,77,1,0,0,0,0,192,0,-1--1--1,,1|(1529,993)|
+12,82,48,2004,1038,25,15,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,83,85,80,100,0,0,22,0,192,0,-1--1--1,,1|(1861,1038)|
+1,84,85,82,4,0,0,22,0,192,0,-1--1--1,,1|(1951,1038)|
+11,85,0,1918,1038,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,86,Decrease fuel consumption per AKF,1918,1067,77,21,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,87,Average yearly percentage increase of aircraft fuel efficiency,2135,1154,94,36,8,3,0,18,-1,0,0,0,0-0-0,0-0-0,|||0-0-0,0,0,0,0,0,0
+1,88,87,86,1,0,0,0,0,192,0,-1--1--1,,1|(2040,1106)|
+1,89,80,86,1,0,0,0,0,192,0,-1--1--1,,1|(1806,1100)|
+10,90,Accumulated CO2 emissions,2868,1049,61,25,3,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,91,48,2625,1047,25,15,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,92,94,91,100,0,0,22,0,192,0,-1--1--1,,1|(2686,1047)|
+1,93,94,90,4,0,0,22,0,192,0,-1--1--1,,1|(2770,1047)|
+11,94,0,2728,1047,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,95,Total annual CO2 emissions,2728,1079,69,24,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,96,Fuel consumed,2564,1157,54,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,97,96,95,1,0,0,0,0,192,0,-1--1--1,,1|(2664,1125)|
+10,98,CO2 emissions per liter jet fuel,2842,1204,74,24,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,99,98,95,1,0,0,0,0,192,0,-1--1--1,,1|(2778,1157)|
+10,100,Total accumulated emissions,2896,898,114,45,3,3,0,23,-1,0,0,0,0-0-255,0-0-255,||B|255-255-255,0,0,0,0,0,0
+1,101,90,100,1,0,0,0,0,192,0,-1--1--1,,1|(2921,970)|
+10,102,Annual fuel consumption,1154,1149,74,33,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,103,73,102,1,0,0,0,0,192,0,-1--1--1,,1|(1352,1125)|
+10,104,Total accumulated fuel consumption previous year,1464,1150,89,34,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,105,73,104,1,0,0,0,0,192,0,-1--1--1,,1|(1475,1114)|
+1,106,104,102,1,0,0,0,0,192,0,-1--1--1,,1|(1325,1176)|
+10,107,Initial value total fuel consumption,1567,1218,94,36,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,108,107,73,1,0,0,0,0,192,1,-1--1--1,,1|(1572,1152)|
+1,109,107,102,1,0,0,0,0,192,0,-1--1--1,,1|(1376,1231)|
+10,110,Time,1069,1314,35,13,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,111,INITIAL TIME,1234,1344,41,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,112,110,102,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,113,111,102,1,0,0,0,0,192,0,-1--1--1,,1|(1171,1267)|
+10,114,Current annual RPK,881,1234,59,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+12,115,0,2390,231,151,81,3,7,0,0,5,1,0,0,0,0,256,0,0,0
+Abbreviations|<<NnN>>||<<NnN>>|AKF = Aircraft Kilometers Flown|<<NnN>>|ASK = Available Seat Kilometers|<<NnN>>|PAX = Revenue Passengers|<<NnN>>|PLF = Passenger Load Factor|<<NnN>>|RPK = Revenue Passenger Kilometers|<<NnN>>|
+10,116,Time,362,763,35,13,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,117,INITIAL TIME,329,857,41,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,118,117,4,1,0,0,0,0,192,0,-1--1--1,,1|(429,848)|
+1,119,116,4,1,0,0,0,0,192,0,-1--1--1,,1|(440,800)|
+10,120,Initial value fuel cost per RPK,391,975,71,24,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,121,120,4,1,0,0,0,0,192,0,-1--1--1,,1|(442,897)|
+1,122,102,1,1,0,0,0,0,192,0,-1--1--1,,1|(1008,1153)|
+1,123,114,1,1,0,0,0,0,192,0,-1--1--1,,1|(821,1173)|
+1,124,8,120,1,0,0,0,0,192,0,-1--1--1,,1|(467,1030)|
+10,125,Initial value fuel consumption per RPK,433,1102,73,35,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,126,125,120,1,0,0,0,0,192,0,-1--1--1,,1|(391,1045)|
+10,127,Initial value annual RPK,467,1244,53,24,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,128,127,125,1,0,0,0,0,192,0,-1--1--1,,1|(475,1161)|
+10,129,Initial value total fuel consumption,638,1249,64,35,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,130,129,125,1,0,0,0,0,192,0,-1--1--1,,1|(571,1171)|
+10,131,Initial value passenger demand,261,1260,83,25,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,132,131,127,1,0,0,0,0,192,0,-1--1--1,,1|(368,1239)|
+10,133,Market share per haul segment,536,1374,93,35,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,134,133,127,1,0,0,0,0,192,0,-1--1--1,,1|(519,1308)|
+10,135,Market share per haul segment,1675,1389,93,35,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,136,135,107,1,0,0,0,0,192,0,-1--1--1,,1|(1640,1318)|
+10,137,Initial value fuel consumption per AKF,1832,1202,73,35,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,138,137,80,1,0,0,0,0,192,1,-1--1--1,,1|(1758,1139)|
+10,139,Maximum average seating capacity of aircraft,1956,1368,86,35,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,140,139,137,1,0,0,0,0,192,0,-1--1--1,,1|(1878,1295)|
+10,141,Initial value fuel consumption per ASK,2220,1281,80,40,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,142,141,137,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,143,1,2,1,0,0,0,0,192,0,-1--1--1,,1|(719,1062)|
+1,144,42,38,1,0,0,0,0,192,0,-1--1--1,,1|(1358,223)|
+10,145,Total annual passenger demand,893,256,94,35,3,3,0,23,-1,0,0,0,0-0-255,0-0-255,||B|255-255-255,0,0,0,0,0,0
+1,146,14,145,1,0,0,0,0,192,0,-1--1--1,,1|(963,368)|
+10,147,Efficiency Switch,2705,798,65,25,8,3,0,18,-1,0,0,0,0-0-0,0-0-0,||B|4-210-30,0,0,0,0,0,0
+1,148,147,87,1,0,0,0,0,192,0,-1--1--1,,1|(2507,1009)|
+10,149,Efficiency Switch,3330,282,49,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,150,RE Loop Switch,772,360,60,17,8,3,0,18,-1,0,0,0,0-0-0,0-0-0,||B|255-0-128,0,0,0,0,0,0
+1,151,150,18,1,0,0,0,0,192,0,-1--1--1,,1|(834,393)|
+10,152,Initial value passenger demand sector wide,1288,81,99,35,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,153,152,38,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,154,Initial value total fuel consumption sector wide,1447,1425,87,35,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,155,154,107,1,0,0,0,0,192,0,-1--1--1,,1|(1450,1332)|
+10,156,Unit,2210,963,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,157,156,87,1,0,0,0,0,192,0,-1--1--1,,1|(2165,1021)|
+10,158,Average flight distance,1984,785,61,24,3,3,0,4,-1,0,0,0,0-0-0,0-255-0,|||0-0-0,0,0,0,0,0,0
+12,159,48,2264,782,25,15,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,160,162,158,100,0,0,22,0,192,0,-1--1--1,,1|(2099,782)|
+1,161,162,159,4,0,0,22,0,192,0,-1--1--1,,1|(2202,782)|
+11,162,0,2159,782,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,163,Decrease in average flight distance,2159,821,84,31,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,164,158,163,1,0,0,0,0,192,0,-1--1--1,,1|(2042,819)|
+10,165,Yearly percentage reduction flight distance due to route optimalization,2518,850,102,46,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,166,165,163,1,0,0,0,0,192,0,-1--1--1,,1|(2362,848)|
+1,167,147,165,1,0,0,0,0,192,0,-1--1--1,,1|(2609,793)|
+1,168,156,165,1,0,0,0,0,192,0,-1--1--1,,1|(2302,907)|
+10,169,Initial average flight distance,2163,897,65,24,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,170,169,158,1,0,0,0,0,192,1,-1--1--1,,1|(2062,868)|
+1,171,158,56,1,0,0,0,0,192,0,-1--1--1,,1|(1976,717)|
+1,172,158,40,1,0,0,0,0,192,0,-1--1--1,,1|(1784,700)|
+1,173,158,65,1,0,0,0,0,192,0,-1--1--1,,1|(1726,843)|
+10,174,Average flight distance,1891,112,66,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,175,174,47,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,176,Current value annual number of flights,1502,792,77,35,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,177,Demand fulfillment rate,1594,457,77,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,178,40,177,1,0,0,0,0,192,0,-1--1--1,,1|(1524,521)|
+1,179,40,176,1,0,0,0,0,192,0,-1--1--1,,1|(1516,688)|
+1,180,49,177,1,0,0,0,0,192,0,-1--1--1,,1|(1657,404)|
+1,181,176,65,1,0,0,0,0,192,0,-1--1--1,,1|(1496,867)|
+10,182,Demand fulfillment rate,1763,777,73,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,183,182,176,1,0,0,0,0,192,0,-1--1--1,,1|(1643,759)|
+10,184,Average PLF,2277,510,56,23,3,3,0,4,-1,0,0,0,0-0-0,0-255-0,|||0-0-0,0,0,0,0,0,0
+12,185,48,2047,508,25,15,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,186,188,185,100,0,0,22,0,192,0,-1--1--1,,1|(2107,508)|
+1,187,188,184,4,0,0,22,0,192,0,-1--1--1,,1|(2187,508)|
+11,188,0,2148,508,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,189,Increase of average PLF,2148,540,58,24,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,190,Yearly percentage increase PLF,2260,393,68,24,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,191,190,188,1,0,0,0,0,192,0,-1--1--1,,1|(2171,443)|
+1,192,184,188,1,0,0,0,0,192,0,-1--1--1,,1|(2204,471)|
+1,193,147,190,1,0,0,0,0,192,0,-1--1--1,,1|(2513,579)|
+1,194,184,43,1,0,0,0,0,192,0,-1--1--1,,1|(2141,555)|
+1,195,176,56,1,0,0,0,0,192,0,-1--1--1,,1|(1697,696)|
+10,196,Annual passenger demand previous year,1425,402,78,35,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,197,14,196,1,0,0,0,0,192,0,-1--1--1,,1|(1216,431)|
+1,198,196,36,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,199,Annual fuel efficiency induced demand growth,1009,591,125,38,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,200,19,199,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+///---\\\
+:L<%^E!@
+1:rebound simulation.vdfx
+4:Time
+5:Fare elasticity of demand[Haul segment]
+6:LongHaul
+6:MediumHaul
+6:ShortHaul
+6:ShortMediumHaul
+6:UltraLongHaul
+9:rebound simulation
+19:45,0
+24:2022
+25:2040
+26:2040
+23:0
+15:0,0,0,0,0,0
+27:0,
+34:0,
+42:0
+72:0
+73:0
+95:0
+96:0
+97:0
+77:0
+78:0
+102:0
+93:0
+94:0
+92:0
+91:0
+90:0
+87:0
+75:
+43:
+103:8,8,8,3,8
+105:0,0,0,0,0,0,0,0,0,0
+104:Arial|12||0-0-0|0-0-0|-1--1--1|0-0-255|192-192-192|-1--1--1
